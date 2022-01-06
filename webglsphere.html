@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport"
+			content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<title>3D地球</title>
+		<link rel="stylesheet" href="css/base.css">
+		<link rel="stylesheet" href="css/fontello.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<div class="content"><a class="github" href="https://github.com/edwardzhong"><img src="../img/github.png"></a>
+			<header class="header">
+				<h1><a href="/demo">Jiang's Demo</a></h1>
+			</header>
+			<div class="main grid">
+				
+				<h2>3D地球</h2>
+				<p id="loading">正在下载贴图，请稍后...</p><canvas id="canvas" width="600" height="400"></canvas>
+			</div>
+			<footer class="footer">
+				<p> Copyright &copy; 2021 Jiang </p>
+			</footer>
+		</div>
+		<script>
+			(function() {
+				'use strict';
+				var K = Math.sin,
+					Q = Math.cos,
+					Z = Math.PI,
+					$ = Math.sqrt;
+
+				function e(e, t, r) {
+					var a = new ue(3);
+					return e && (a[0] = e), t && (a[1] = t), r && (a[2] = r), a
+				}
+
+				function t(e, t, r) {
+					return r = r || new ue(3), r[0] = e[0] - t[0], r[1] = e[1] - t[1], r[2] = e[2] - t[2], r
+				}
+
+				function r(e, t, r) {
+					return r = r || new ue(3), r[0] = e[0] * t, r[1] = e[1] * t, r[2] = e[2] * t, r
+				}
+
+				function a(e, t, r) {
+					r = r || new ue(3);
+					var a = e[2] * t[0] - e[0] * t[2],
+						i = e[0] * t[1] - e[1] * t[0];
+					return r[0] = e[1] * t[2] - e[2] * t[1], r[1] = a, r[2] = i, r
+				}
+
+				function i(e, t) {
+					return e[0] * t[0] + e[1] * t[1] + e[2] * t[2]
+				}
+
+				function n(e) {
+					return $(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
+				}
+
+				function o(e, t) {
+					t = t || new ue(3);
+					var r = e[0] * e[0] + e[1] * e[1] + e[2] * e[2],
+						a = $(r);
+					return 1e-5 < a ? (t[0] = e[0] / a, t[1] = e[1] / a, t[2] = e[2] / a) : (t[0] = 0, t[1] = 0, t[2] = 0), t
+				}
+
+				function l(e, t) {
+					return t = t || new ue(3), t[0] = e[0], t[1] = e[1], t[2] = e[2], t
+				}
+
+				function s(e) {
+					return e = e || new de(16), e[0] = 1, e[1] = 0, e[2] = 0, e[3] = 0, e[4] = 0, e[5] = 1, e[6] = 0, e[7] =
+						0, e[8] = 0, e[9] = 0, e[10] = 1, e[11] = 0, e[12] = 0, e[13] = 0, e[14] = 0, e[15] = 1, e
+				}
+
+				function u(e, t) {
+					t = t || new de(16);
+					var r = e[0],
+						a = e[1],
+						i = e[2],
+						n = e[3],
+						o = e[4],
+						l = e[5],
+						s = e[6],
+						u = e[7],
+						b = e[8],
+						m = e[9],
+						y = e[10],
+						x = e[11],
+						c = e[12],
+						f = e[13],
+						p = e[14],
+						v = e[15],
+						g = y * v,
+						F = p * x,
+						E = s * v,
+						P = p * u,
+						h = s * x,
+						T = y * u,
+						_ = i * v,
+						z = p * n,
+						R = i * x,
+						S = y * n,
+						A = i * u,
+						w = s * n,
+						M = b * f,
+						D = c * m,
+						L = o * f,
+						B = c * l,
+						C = o * m,
+						I = b * l,
+						O = r * f,
+						k = c * a,
+						X = r * m,
+						G = b * a,
+						V = r * l,
+						W = o * a,
+						N = g * l + P * m + h * f - (F * l + E * m + T * f),
+						U = F * a + _ * m + S * f - (g * a + z * m + R * f),
+						j = E * a + z * l + A * f - (P * a + _ * l + w * f),
+						H = T * a + R * l + w * m - (h * a + S * l + A * m),
+						Y = 1 / (r * N + o * U + b * j + c * H);
+					return t[0] = Y * N, t[1] = Y * U, t[2] = Y * j, t[3] = Y * H, t[4] = Y * (F * o + E * b + T * c - (g *
+						o + P * b + h * c)), t[5] = Y * (g * r + z * b + R * c - (F * r + _ * b + S * c)), t[6] = Y * (
+						P * r + _ * o + w * c - (E * r + z * o + A * c)), t[7] = Y * (h * r + S * o + A * b - (T * r +
+						R * o + w * b)), t[8] = Y * (M * u + B * x + C * v - (D * u + L * x + I * v)), t[9] = Y * (D *
+						n + O * x + G * v - (M * n + k * x + X * v)), t[10] = Y * (L * n + k * u + V * v - (B * n + O *
+						u + W * v)), t[11] = Y * (I * n + X * u + W * x - (C * n + G * u + V * x)), t[12] = Y * (L * y +
+						I * p + D * s - (C * p + M * s + B * y)), t[13] = Y * (X * p + M * i + k * y - (O * y + G * p +
+						D * i)), t[14] = Y * (O * s + W * p + B * i - (V * p + L * i + k * s)), t[15] = Y * (V * y + C *
+						i + G * s - (X * s + W * y + I * i)), t
+				}
+
+				function d(e, t, r) {
+					r = r || new de(16);
+					var a = e[0],
+						i = e[1],
+						n = e[2],
+						o = e[3],
+						l = e[4],
+						s = e[5],
+						u = e[6],
+						d = e[7],
+						b = e[8],
+						m = e[9],
+						y = e[10],
+						x = e[11],
+						c = e[12],
+						f = e[13],
+						p = e[14],
+						v = e[15],
+						g = t[0],
+						F = t[1],
+						E = t[2],
+						P = t[3],
+						h = t[4],
+						T = t[5],
+						_ = t[6],
+						z = t[7],
+						R = t[8],
+						S = t[9],
+						A = t[10],
+						w = t[11],
+						M = t[12],
+						D = t[13],
+						L = t[14],
+						B = t[15];
+					return r[0] = a * g + l * F + b * E + c * P, r[1] = i * g + s * F + m * E + f * P, r[2] = n * g + u * F +
+						y * E + p * P, r[3] = o * g + d * F + x * E + v * P, r[4] = a * h + l * T + b * _ + c * z, r[5] = i *
+						h + s * T + m * _ + f * z, r[6] = n * h + u * T + y * _ + p * z, r[7] = o * h + d * T + x * _ + v *
+						z, r[8] = a * R + l * S + b * A + c * w, r[9] = i * R + s * S + m * A + f * w, r[10] = n * R + u *
+						S + y * A + p * w, r[11] = o * R + d * S + x * A + v * w, r[12] = a * M + l * D + b * L + c * B, r[
+							13] = i * M + s * D + m * L + f * B, r[14] = n * M + u * D + y * L + p * B, r[15] = o * M + d *
+						D + x * L + v * B, r
+				}
+
+				function b(r, i, n, l) {
+					return l = l || new de(16), ee = ee || e(), te = te || e(), re = re || e(), o(t(r, i, re), re), o(a(n,
+							re, ee), ee), o(a(re, ee, te), te), l[0] = ee[0], l[1] = ee[1], l[2] = ee[2], l[3] = 0, l[4] =
+						te[0], l[5] = te[1], l[6] = te[2], l[7] = 0, l[8] = re[0], l[9] = re[1], l[10] = re[2], l[11] = 0, l[
+							12] = r[0], l[13] = r[1], l[14] = r[2], l[15] = 1, l
+				}
+
+				function m(e, t) {
+					t = t || new de(16);
+					var r = Q(e),
+						a = K(e);
+					return t[0] = r, t[1] = 0, t[2] = -a, t[3] = 0, t[4] = 0, t[5] = 1, t[6] = 0, t[7] = 0, t[8] = a, t[9] =
+						0, t[10] = r, t[11] = 0, t[12] = 0, t[13] = 0, t[14] = 0, t[15] = 1, t
+				}
+
+				function x(e, t, r, a) {
+					a = a || new de(16);
+					var i = t[0],
+						o = t[1],
+						l = t[2],
+						u = $(i * i + o * o + l * l);
+					i /= u, o /= u, l /= u;
+					var n = i * i,
+						d = o * o,
+						b = l * l,
+						m = Q(r),
+						c = K(r),
+						s = 1 - m,
+						f = n + (1 - n) * m,
+						p = i * o * s + l * c,
+						v = i * l * s - o * c,
+						g = i * o * s - l * c,
+						F = d + (1 - d) * m,
+						E = o * l * s + i * c,
+						P = i * l * s + o * c,
+						h = o * l * s - i * c,
+						T = b + (1 - b) * m,
+						_ = e[0],
+						R = e[1],
+						S = e[2],
+						A = e[3],
+						w = e[4],
+						M = e[5],
+						D = e[6],
+						L = e[7],
+						B = e[8],
+						C = e[9],
+						I = e[10],
+						O = e[11];
+					return a[0] = f * _ + p * w + v * B, a[1] = f * R + p * M + v * C, a[2] = f * S + p * D + v * I, a[3] =
+						f * A + p * L + v * O, a[4] = g * _ + F * w + E * B, a[5] = g * R + F * M + E * C, a[6] = g * S + F *
+						D + E * I, a[7] = g * A + F * L + E * O, a[8] = P * _ + h * w + T * B, a[9] = P * R + h * M + T * C,
+						a[10] = P * S + h * D + T * I, a[11] = P * A + h * L + T * O, e !== a && (a[12] = e[12], a[13] = e[
+							13], a[14] = e[14], a[15] = e[15]), a
+				}
+
+				function c(t, r, a) {
+					a = a || e();
+					var i = r[0],
+						n = r[1],
+						o = r[2],
+						l = i * t[3] + n * t[7] + o * t[11] + t[15];
+					return a[0] = (i * t[0] + n * t[4] + o * t[8] + t[12]) / l, a[1] = (i * t[1] + n * t[5] + o * t[9] + t[
+						13]) / l, a[2] = (i * t[2] + n * t[6] + o * t[10] + t[14]) / l, a
+				}
+
+				function f(t, r, a) {
+					a = a || e();
+					var i = r[0],
+						n = r[1],
+						o = r[2];
+					return a[0] = i * t[0] + n * t[4] + o * t[8], a[1] = i * t[1] + n * t[5] + o * t[9], a[2] = i * t[2] +
+						n * t[6] + o * t[10], a
+				}
+
+				function p(e, t, r) {
+					if (!e) throw new Error("canvas not exist");
+					var a = e.getBoundingClientRect();
+					return {
+						x: (t - a.left) * (e.width / a.width),
+						y: (r - a.top) * (e.height / a.height)
+					}
+				}
+
+				function v(e, t) {
+					var r = "mousewheel";
+					try {
+						document.createEvent("MouseScrollEvents"), r = "DOMMouseScroll"
+					} catch (t) {}
+					e.addEventListener(r, function(r) {
+						if ("wheelDelta" in r) {
+							var e = r.wheelDelta;
+							window.opera && 10 > opera.version() && (e = -e), r.delta = Math.round(e) / 120
+						} else "detail" in r && (r.wheelDelta = 40 * -r.detail, r.delta = r.wheelDelta / 120);
+						t(r)
+					}, !1)
+				}
+
+				function g(e) {
+					if (Symbol.iterator in Object(e) || "[object Arguments]" === Object.prototype.toString.call(e))
+					return Array.from(e)
+				}
+
+				function F(e, t) {
+					t = t || [];
+					var r = $(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+					return 1e-5 < r ? (t[0] = e[0] / r, t[1] = e[1] / r, t[2] = e[2] / r) : (t[0] = 0, t[1] = 0, t[2] = 0), t
+				}
+
+				function E(e, t, r) {
+					return t in e ? Object.defineProperty(e, t, {
+						value: r,
+						enumerable: !0,
+						configurable: !0,
+						writable: !0
+					}) : e[t] = r, e
+				}
+
+				function P(e, r) {
+					return ne || (ne = e.createTexture()), r instanceof ne.constructor
+				}
+
+				function h(e) {
+					return !!e.texStorage2D
+				}
+
+				function T(e) {
+					var t = e.name;
+					return t.startsWith("gl_") || t.startsWith("webgl_")
+				}
+
+				function _(e, t) {
+					it(e, 0);
+					var r = e.getExtension(t);
+					if (r) {
+						var a = {},
+							i = nt.exec(t)[1];
+						for (var n in r) {
+							var o = r[n],
+								l = "function" == typeof o,
+								s = l ? i : "_" + i,
+								u = n;
+							n.endsWith(s) && (u = n.substring(0, n.length - s.length)), e[u] === void 0 ? l ? e[u] =
+								function(e) {
+									return function() {
+										return e.apply(r, arguments)
+									}
+								}(o) : (e[u] = o, a[u] = o) : !l && e[u] !== o && console.warn(u, e[u], o, n)
+						}
+						a.constructor = {
+							name: r.constructor.name
+						}, it(a, 0)
+					}
+					return r
+				}
+
+				function z(e) {
+					for (var t = 0; t < at.length; t++) _(e, at[t])
+				}
+
+				function R(e) {
+					for (var t = arguments.length, r = Array(1 < t ? t - 1 : 0), a = 1; a < t; a++) r[a - 1] = arguments[a];
+					var i = S(r);
+					return A(e, i)
+				}
+
+				function S() {
+					for (var e, t, r, a, i = [], n = arguments.length, o = Array(n), l = 0; l < n; l++) o[l] = arguments[l];
+					(o + "").replace(/[^\,\s]+/g, function(e) {
+						e && i.push(e)
+					});
+					for (var s, u = 0, d = i; u < d.length; u++) {
+						if (s = d[u], r = document.getElementById(s), !r) throw new Error("Can't find script element " + s);
+						if (a = r.type, !a) throw new Error("Script element type undefined");
+						0 <= a.indexOf("vert") && (e = r.text), 0 <= a.indexOf("frag") && (t = r.text)
+					}
+					if (!e) throw new Error("VERTEX_SHADER String not exist");
+					if (!t) throw new Error("FRAGMENT_SHADER String not exist");
+					return [e, t]
+				}
+
+				function A(e) {
+					for (var t = arguments.length, r = Array(1 < t ? t - 1 : 0), a = 1; a < t; a++) r[a - 1] = arguments[a];
+					Array.isArray(r[0]) && (r = r[0]);
+					var i = w(e, 35633, r[0]),
+						n = w(e, 35632, r[1]);
+					if (!i) throw new Error("VERTEX_SHADER not exist");
+					if (!n) throw new Error("FRAGMENT_SHADER not exist");
+					var o = e.createProgram();
+					if (!o) throw new Error("Program not exist");
+					e.attachShader(o, i), e.attachShader(o, n), e.linkProgram(o);
+					var l = e.getProgramParameter(o, 35714);
+					if (!l) {
+						var s = e.getProgramInfoLog(o);
+						throw e.deleteProgram(o), e.deleteShader(n), e.deleteShader(i), new Error(
+							"Failed to link program: " + s.toString())
+					}
+					return o
+				}
+
+				function w(e, t, r) {
+					var a = e.createShader(t);
+					if (!a) throw new Error("Unable to create shader");
+					e.shaderSource(a, r), e.compileShader(a);
+					var i = e.getShaderParameter(a, 35713);
+					if (!i) {
+						var n = e.getShaderInfoLog(a);
+						throw e.deleteShader(a), new Error("Failed to compile shader: " + n.toString())
+					}
+					return a
+				}
+
+				function M(e, t) {
+					for (var r, a = {}, n = e.getProgramParameter(t, 35721), o = 0; o < n; o++)
+						if (r = e.getActiveAttrib(t, o), !T(r)) {
+							var l = e.getAttribLocation(t, r.name),
+								s = $e[r.type],
+								u = s.setter(e, l, s);
+							u.location = l, a[r.name] = u
+						} return a
+				}
+
+				function D(e, t) {
+					function r(t, r) {
+						var a = e.getUniformLocation(t, r.name),
+							i = r.name.endsWith("[0]"),
+							o = r.type,
+							l = qe[o];
+						if (!l) throw new Error("unknown type: 0x" + o.toString(16));
+						var s;
+						if (l.bindPoint) {
+							var u = n;
+							n += r.size, s = i ? l.arraySetter(e, o, u, a, r.size) : l.setter(e, o, u, a, r.size)
+						} else s = l.arraySetter && i ? l.arraySetter(e, a) : l.setter(e, a);
+						return s.location = a, s
+					}
+					for (var a, n = 0, o = {}, l = e.getProgramParameter(t, 35718), s = 0; s < l; s++)
+						if (a = e.getActiveUniform(t, s), !T(a)) {
+							var u = a.name;
+							u.endsWith("[0]") && (u = u.substr(0, u.length - 3));
+							var d = r(t, a);
+							o[u] = d
+						} return o
+				}
+
+				function L(e, t) {
+					for (var r in e = e.uniformSetters || e, t) {
+						var a = e[r];
+						a && a(t[r])
+					}
+				}
+
+				function B(e, t, r) {
+					t.vertexArrayObject ? e.bindVertexArray(t.vertexArrayObject) : (C(r.attribSetters || r, t.attribs), t
+						.indices && e.bindBuffer(34963, t.indices))
+				}
+
+				function C(e, t) {
+					for (var r in e = e.attribSetters || e, t) {
+						var a = e[r];
+						a && a(t[r])
+					}
+				}
+
+				function I(e, t) {
+					var r = {};
+					for (var a in t)
+						if (!tt(a)) {
+							var i = t[a],
+								n = V(i),
+								o = i.name || i.attrName || et.attribPrefix(a);
+							r[o] = {
+								buffer: O(e, n, void 0, i.drawType),
+								size: i.size || X(o),
+								type: i.type,
+								normalize: W(n),
+								stride: i.stride || 0,
+								offset: i.offset || 0,
+								divisor: i.divisor,
+								drawType: i.drawType || 35044
+							}
+						} return e.bindBuffer(34962, null), r
+				}
+
+				function O(e, t, r, a) {
+					r = r || 34962;
+					var i = e.createBuffer();
+					return e.bindBuffer(r, i), e.bufferData(r, t, a || 35044), i
+				}
+
+				function X(e, t) {
+					var r;
+					if (r = ot.test(e) ? 2 : lt.test(e) ? 4 : 3, 0 < t % r) throw new Error(
+						"Can not guess size for attribute ".concat(e, ". Tried ").concat(r, " but ").concat(t,
+							" values is not evenly divisible by ").concat(r, ". You should specify it."));
+					return r
+				}
+
+				function G(e) {
+					for (var t, r = Object.keys(e), a = r[0], i = 0, n = r; i < n.length; i++)
+						if (t = n[i], st.test(t)) {
+							a = t;
+							break
+						} var o = e[a],
+						l = o.count || (o.data ? o.data : o).length,
+						s = o.size || X(a, l);
+					if (0 < l % s) throw new Error("numComponents ".concat(s, " not correct for length ").concat(l));
+					return l / s
+				}
+
+				function V(e, t) {
+					if (rt(e)) return e;
+					if (rt(e.data)) return e.data;
+					Array.isArray(e) && (e = {
+						data: e
+					});
+					var r = e.type || t || Float32Array;
+					return new r(e.data)
+				}
+
+				function W(e) {
+					return !!(e instanceof Int8Array) || !!(e instanceof Uint8Array)
+				}
+
+				function N(e, t, r, a, i) {
+					r = r || 4, a = a || t.count, i = i || 0;
+					var n = t.indexType;
+					n ? e.drawElements(r, a, n, i) : e.drawArrays(r, i, a)
+				}
+
+				function U(e) {
+					if (!se) {
+						var r, a = (r = {}, xe(r, 6406, {
+							textureFormat: 6406,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [1, 2, 2, 4],
+							type: [5121, 5131, 36193, 5126]
+						}), xe(r, 6409, {
+							textureFormat: 6409,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [1, 2, 2, 4],
+							type: [5121, 5131, 36193, 5126]
+						}), xe(r, 6410, {
+							textureFormat: 6410,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [2, 4, 4, 8],
+							type: [5121, 5131, 36193, 5126]
+						}), xe(r, 6407, {
+							textureFormat: 6407,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [3, 6, 6, 12, 2],
+							type: [5121, 5131, 36193, 5126, 33635]
+						}), xe(r, 6408, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4, 8, 8, 16, 2, 2],
+							type: [5121, 5131, 36193, 5126, 32819, 32820]
+						}), xe(r, 6402, {
+							textureFormat: 6402,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2, 4],
+							type: [5125, 5123]
+						}), xe(r, 33321, {
+							textureFormat: 6403,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [1],
+							type: [5121]
+						}), xe(r, 36756, {
+							textureFormat: 6403,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [1],
+							type: [5120]
+						}), xe(r, 33325, {
+							textureFormat: 6403,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [4, 2],
+							type: [5126, 5131]
+						}), xe(r, 33326, {
+							textureFormat: 6403,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5126]
+						}), xe(r, 33330, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [1],
+							type: [5121]
+						}), xe(r, 33329, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [1],
+							type: [5120]
+						}), xe(r, 33332, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2],
+							type: [5123]
+						}), xe(r, 33331, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2],
+							type: [5122]
+						}), xe(r, 33334, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5125]
+						}), xe(r, 33333, {
+							textureFormat: 36244,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5124]
+						}), xe(r, 33323, {
+							textureFormat: 33319,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [2],
+							type: [5121]
+						}), xe(r, 36757, {
+							textureFormat: 33319,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [2],
+							type: [5120]
+						}), xe(r, 33327, {
+							textureFormat: 33319,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [8, 4],
+							type: [5126, 5131]
+						}), xe(r, 33328, {
+							textureFormat: 33319,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [8],
+							type: [5126]
+						}), xe(r, 33336, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2],
+							type: [5121]
+						}), xe(r, 33335, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2],
+							type: [5120]
+						}), xe(r, 33338, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5123]
+						}), xe(r, 33337, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5122]
+						}), xe(r, 33340, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [8],
+							type: [5125]
+						}), xe(r, 33339, {
+							textureFormat: 33320,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [8],
+							type: [5124]
+						}), xe(r, 32849, {
+							textureFormat: 6407,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [3],
+							type: [5121]
+						}), xe(r, 35905, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [3],
+							type: [5121]
+						}), xe(r, 36194, {
+							textureFormat: 6407,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [3, 2],
+							type: [5121, 33635]
+						}), xe(r, 36758, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [3],
+							type: [5120]
+						}), xe(r, 35898, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [12, 6, 4],
+							type: [5126, 5131, 35899]
+						}), xe(r, 35901, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [12, 6, 4],
+							type: [5126, 5131, 35902]
+						}), xe(r, 34843, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [12, 6],
+							type: [5126, 5131]
+						}), xe(r, 34837, {
+							textureFormat: 6407,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [12],
+							type: [5126]
+						}), xe(r, 36221, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [3],
+							type: [5121]
+						}), xe(r, 36239, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [3],
+							type: [5120]
+						}), xe(r, 36215, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [6],
+							type: [5123]
+						}), xe(r, 36233, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [6],
+							type: [5122]
+						}), xe(r, 36209, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [12],
+							type: [5125]
+						}), xe(r, 36227, {
+							textureFormat: 36248,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [12],
+							type: [5124]
+						}), xe(r, 32856, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4],
+							type: [5121]
+						}), xe(r, 35907, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4],
+							type: [5121]
+						}), xe(r, 36759, {
+							textureFormat: 6408,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [4],
+							type: [5120]
+						}), xe(r, 32855, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4, 2, 4],
+							type: [5121, 32820, 33640]
+						}), xe(r, 32854, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4, 2],
+							type: [5121, 32819]
+						}), xe(r, 32857, {
+							textureFormat: 6408,
+							colorRenderable: !0,
+							textureFilterable: !0,
+							bytesPerElement: [4],
+							type: [33640]
+						}), xe(r, 34842, {
+							textureFormat: 6408,
+							colorRenderable: !1,
+							textureFilterable: !0,
+							bytesPerElement: [16, 8],
+							type: [5126, 5131]
+						}), xe(r, 34836, {
+							textureFormat: 6408,
+							colorRenderable: !1,
+							textureFilterable: !1,
+							bytesPerElement: [16],
+							type: [5126]
+						}), xe(r, 36220, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5121]
+						}), xe(r, 36238, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5120]
+						}), xe(r, 36975, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [33640]
+						}), xe(r, 36214, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [8],
+							type: [5123]
+						}), xe(r, 36232, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [8],
+							type: [5122]
+						}), xe(r, 36226, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [16],
+							type: [5124]
+						}), xe(r, 36208, {
+							textureFormat: 36249,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [16],
+							type: [5125]
+						}), xe(r, 33189, {
+							textureFormat: 6402,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [2, 4],
+							type: [5123, 5125]
+						}), xe(r, 33190, {
+							textureFormat: 6402,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5125]
+						}), xe(r, 36012, {
+							textureFormat: 6402,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [5126]
+						}), xe(r, 35056, {
+							textureFormat: 34041,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [34042]
+						}), xe(r, 36013, {
+							textureFormat: 34041,
+							colorRenderable: !0,
+							textureFilterable: !1,
+							bytesPerElement: [4],
+							type: [36269]
+						}), r);
+						Object.keys(a).forEach(function(e) {
+							var t = a[e];
+							t.bytesPerElementMap = {}, t.bytesPerElement.forEach(function(e, r) {
+								var a = t.type[r];
+								t.bytesPerElementMap[a] = e
+							})
+						}), se = a
+					}
+					return se[e]
+				}
+
+				function j(e) {
+					var t = U(e);
+					if (!t) throw "unknown internal format";
+					return {
+						format: t.textureFormat,
+						type: t.type[0]
+					}
+				}
+
+				function H(e) {
+					return e ? e.buffer ? e : Array.isArray(e) ? new Uint8Array(e) : null : null
+				}
+
+				function Y(e, t, r, a, i, n) {
+					n = n || a, e.texImage2D(n, 0, 6408, 1, 1, 0, 6408, 5121, new Uint8Array([0, 0, 255, 255]));
+					var o = new Image;
+					o.onload = function() {
+						e.bindTexture(a, r), e.texImage2D(n, 0, 6408, 6408, 5121, o), i()
+					}, -1 < t.search(/^data:image/) ? o.src = t : q(o, t)
+				}
+
+				function q(e, t) {
+					var r = location.href.lastIndexOf("/") + 1;
+					0 > t.search("http") && (t = location.href.substr(0, r) + t), new URL(t).origin !== window.location
+						.origin && (e.crossOrigin = ""), e.src = t
+				}
+
+				function J() {
+					var e = Et();
+					vt.clear(vt.COLOR_BUFFER_BIT | vt.DEPTH_BUFFER_BIT), d(gt, u(b(e, [0, 0, 0], [0, 1, 0])), Ft), B(vt, k),
+						L(y, {
+							viewPos: e,
+							vpMatrix: Ft
+						}), N(vt, k), vt.bindVertexArray(null), requestAnimationFrame(J)
+				}
+				var ee, te, re, ae, ie, ne, oe, le, se, ue = Float32Array,
+					de = Float32Array,
+					be = function(e) {
+						if (Array.isArray(e)) {
+							for (var t = 0, r = Array(e.length); t < e.length; t++) r[t] = e[t];
+							return r
+						}
+					},
+					me = function() {
+						throw new TypeError("Invalid attempt to spread non-iterable instance")
+					},
+					ye = function(e) {
+						return be(e) || g(e) || me()
+					},
+					xe = E,
+					ce = 33984,
+					fe = 34962,
+					pe = 5126,
+					ve = 35664,
+					ge = 35665,
+					Fe = 35666,
+					Ee = 5124,
+					Pe = 35667,
+					he = 35668,
+					Te = 35669,
+					_e = 35670,
+					ze = 35671,
+					Re = 35672,
+					Se = 35673,
+					Ae = 35674,
+					we = 35675,
+					Me = 35676,
+					De = 5125,
+					Le = 36294,
+					Be = 36295,
+					Ce = 36296,
+					Ie = 3553,
+					Oe = 34067,
+					ke = 32879,
+					Xe = 35866,
+					Ge = function(e, t) {
+						return function(r) {
+							e.uniform1i(t, r)
+						}
+					},
+					Ve = function(e, t) {
+						return function(r) {
+							e.uniform1iv(t, r)
+						}
+					},
+					We = function(e, t) {
+						return function(r) {
+							e.uniform2iv(t, r)
+						}
+					},
+					Ne = function(e, t) {
+						return function(r) {
+							e.uniform3iv(t, r)
+						}
+					},
+					Ue = function(e, t) {
+						return function(r) {
+							e.uniform4iv(t, r)
+						}
+					},
+					je = function(e) {
+						return qe[e].bindPoint
+					},
+					He = function(e, t, r, a) {
+						var i = je(t);
+						return h(e) ? function(t) {
+							var n, o;
+							P(e, t) ? (n = t, o = null) : (n = t.texture, o = t.sampler), e.uniform1i(a, r), e
+								.activeTexture(ce + r), e.bindTexture(i, n), e.bindSampler(r, o)
+						} : function(t) {
+							e.uniform1i(a, r), e.activeTexture(ce + r), e.bindTexture(i, t)
+						}
+					},
+					Ye = function(e, t, r, a, n) {
+						for (var o = je(t), l = new Int32Array(n), s = 0; s < n; s++) l[s] = r + s;
+						return h(e) ? function(t) {
+							e.uniform1iv(a, l), t.forEach(function(t, a) {
+								e.activeTexture(ce + l[a]);
+								var i, n;
+								P(e, t) ? (i = t, n = null) : (i = t.texture, n = t.sampler), e.bindSampler(r,
+									n), e.bindTexture(o, i)
+							})
+						} : function(t) {
+							e.uniform1iv(a, l), t.forEach(function(t, r) {
+								e.activeTexture(ce + l[r]), e.bindTexture(o, t)
+							})
+						}
+					},
+					qe = (ae = {}, xe(ae, pe, {
+						Type: Float32Array,
+						size: 4,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform1f(t, r)
+							}
+						},
+						arraySetter: function(e, t) {
+							return function(r) {
+								e.uniform1fv(t, r)
+							}
+						}
+					}), xe(ae, ve, {
+						Type: Float32Array,
+						size: 8,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform2fv(t, r)
+							}
+						}
+					}), xe(ae, ge, {
+						Type: Float32Array,
+						size: 12,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform3fv(t, r)
+							}
+						}
+					}), xe(ae, Fe, {
+						Type: Float32Array,
+						size: 16,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform4fv(t, r)
+							}
+						}
+					}), xe(ae, Ee, {
+						Type: Int32Array,
+						size: 4,
+						setter: Ge,
+						arraySetter: Ve
+					}), xe(ae, Pe, {
+						Type: Int32Array,
+						size: 8,
+						setter: We
+					}), xe(ae, he, {
+						Type: Int32Array,
+						size: 12,
+						setter: Ne
+					}), xe(ae, Te, {
+						Type: Int32Array,
+						size: 16,
+						setter: Ue
+					}), xe(ae, De, {
+						Type: Uint32Array,
+						size: 4,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform1ui(t, r)
+							}
+						},
+						arraySetter: function(e, t) {
+							return function(r) {
+								e.uniform1uiv(t, r)
+							}
+						}
+					}), xe(ae, Le, {
+						Type: Uint32Array,
+						size: 8,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform2uiv(t, r)
+							}
+						}
+					}), xe(ae, Be, {
+						Type: Uint32Array,
+						size: 12,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform3uiv(t, r)
+							}
+						}
+					}), xe(ae, Ce, {
+						Type: Uint32Array,
+						size: 16,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniform4uiv(t, r)
+							}
+						}
+					}), xe(ae, _e, {
+						Type: Uint32Array,
+						size: 4,
+						setter: Ge,
+						arraySetter: Ve
+					}), xe(ae, ze, {
+						Type: Uint32Array,
+						size: 8,
+						setter: We
+					}), xe(ae, Re, {
+						Type: Uint32Array,
+						size: 12,
+						setter: Ne
+					}), xe(ae, Se, {
+						Type: Uint32Array,
+						size: 16,
+						setter: Ue
+					}), xe(ae, Ae, {
+						Type: Float32Array,
+						size: 16,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix2fv(t, !1, r)
+							}
+						}
+					}), xe(ae, we, {
+						Type: Float32Array,
+						size: 36,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix3fv(t, !1, r)
+							}
+						}
+					}), xe(ae, Me, {
+						Type: Float32Array,
+						size: 64,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix4fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35685, {
+						Type: Float32Array,
+						size: 24,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix2x3fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35686, {
+						Type: Float32Array,
+						size: 32,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix2x4fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35687, {
+						Type: Float32Array,
+						size: 24,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix3x2fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35688, {
+						Type: Float32Array,
+						size: 48,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix3x4fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35689, {
+						Type: Float32Array,
+						size: 32,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix4x2fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35690, {
+						Type: Float32Array,
+						size: 48,
+						setter: function(e, t) {
+							return function(r) {
+								e.uniformMatrix4x3fv(t, !1, r)
+							}
+						}
+					}), xe(ae, 35678, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Ie
+					}), xe(ae, 35680, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Oe
+					}), xe(ae, 35679, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: ke
+					}), xe(ae, 35682, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Ie
+					}), xe(ae, 36289, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Xe
+					}), xe(ae, 36292, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Xe
+					}), xe(ae, 36293, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Oe
+					}), xe(ae, 36298, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Ie
+					}), xe(ae, 36299, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: ke
+					}), xe(ae, 36300, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Oe
+					}), xe(ae, 36303, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Xe
+					}), xe(ae, 36306, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Ie
+					}), xe(ae, 36307, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: ke
+					}), xe(ae, 36308, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Oe
+					}), xe(ae, 36311, {
+						Type: null,
+						size: 0,
+						setter: He,
+						arraySetter: Ye,
+						bindPoint: Xe
+					}), ae),
+					Je = function(e, t) {
+						return function(r) {
+							if (r.value) switch (e.disableVertexAttribArray(t), r.value.length) {
+								case 4:
+									e.vertexAttrib4fv(t, r.value);
+									break;
+								case 3:
+									e.vertexAttrib3fv(t, r.value);
+									break;
+								case 2:
+									e.vertexAttrib2fv(t, r.value);
+									break;
+								case 1:
+									e.vertexAttrib1fv(t, r.value);
+									break;
+								default:
+									throw new Error("the length of a float constant value must be between 1 and 4!");
+							} else e.bindBuffer(fe, r.buffer), e.enableVertexAttribArray(t), e.vertexAttribPointer(t,
+									r.size, r.type || pe, r.normalize || !1, r.stride || 0, r.offset || 0),
+								void 0 !== r.divisor && e.vertexAttribDivisor(t, r.divisor)
+						}
+					},
+					Ke = function(e, t) {
+						return function(r) {
+							if (!r.value) e.bindBuffer(fe, r.buffer), e.enableVertexAttribArray(t), e
+								.vertexAttribIPointer(t, r.size, r.type || Ee, r.stride || 0, r.offset || 0), void 0 !==
+								r.divisor && e.vertexAttribDivisor(t, r.divisor);
+							else if (e.disableVertexAttribArray(t), 4 === r.value.length) e.vertexAttrib4iv(t, r.value);
+							else throw new Error("The length of an integer constant value must be 4!")
+						}
+					},
+					Qe = function(e, t) {
+						return function(r) {
+							if (!r.value) e.bindBuffer(fe, r.buffer), e.enableVertexAttribArray(t), e
+								.vertexAttribIPointer(t, r.size, r.type || De, r.stride || 0, r.offset || 0), void 0 !==
+								r.divisor && e.vertexAttribDivisor(t, r.divisor);
+							else if (e.disableVertexAttribArray(t), 4 === r.value.length) e.vertexAttrib4uiv(t, r.value);
+							else throw new Error("The length of an unsigned integer constant value must be 4!")
+						}
+					},
+					Ze = function(e, t, r) {
+						return function(a) {
+							var n = a.count || r.size,
+								o = r.count;
+							e.bindBuffer(fe, a.buffer);
+							for (var l = a.type || pe, s = qe[l].size * n, u = a.normalize || !1, d = a.offset || 0, b =
+									0; b < o; b++) e.enableVertexAttribArray(t + b), e.vertexAttribPointer(t + b, n / o,
+								l, u, s, d + s / o * b), void 0 !== a.divisor && e.vertexAttribDivisor(t + b, a
+								.divisor)
+						}
+					},
+					$e = (ie = {}, xe(ie, pe, {
+						size: 4,
+						setter: Je
+					}), xe(ie, ve, {
+						size: 8,
+						setter: Je
+					}), xe(ie, ge, {
+						size: 12,
+						setter: Je
+					}), xe(ie, Fe, {
+						size: 16,
+						setter: Je
+					}), xe(ie, Ee, {
+						size: 4,
+						setter: Ke
+					}), xe(ie, Pe, {
+						size: 8,
+						setter: Ke
+					}), xe(ie, he, {
+						size: 12,
+						setter: Ke
+					}), xe(ie, Te, {
+						size: 16,
+						setter: Ke
+					}), xe(ie, De, {
+						size: 4,
+						setter: Qe
+					}), xe(ie, Le, {
+						size: 8,
+						setter: Qe
+					}), xe(ie, Be, {
+						size: 12,
+						setter: Qe
+					}), xe(ie, Ce, {
+						size: 16,
+						setter: Qe
+					}), xe(ie, _e, {
+						size: 4,
+						setter: Ke
+					}), xe(ie, ze, {
+						size: 8,
+						setter: Ke
+					}), xe(ie, Re, {
+						size: 12,
+						setter: Ke
+					}), xe(ie, Se, {
+						size: 16,
+						setter: Ke
+					}), xe(ie, Ae, {
+						size: 4,
+						setter: Ze,
+						count: 2
+					}), xe(ie, we, {
+						size: 9,
+						setter: Ze,
+						count: 3
+					}), xe(ie, Me, {
+						size: 16,
+						setter: Ze,
+						count: 4
+					}), ie),
+					et = {
+						addExtensionsToContext: !0,
+						attribPrefix: function(e) {
+							return "a" + e[0].toUpperCase() + e.substr(1)
+						}
+					},
+					tt = function(e) {
+						return "indices" === e
+					},
+					rt = "undefined" == typeof SharedArrayBuffer ? function(e) {
+						return e && e.buffer && e.buffer instanceof ArrayBuffer
+					} : function(e) {
+						return e && e.buffer && (e.buffer instanceof ArrayBuffer || e.buffer instanceof SharedArrayBuffer)
+					},
+					at = ["ANGLE_instanced_arrays", "EXT_blend_minmax", "EXT_color_buffer_float",
+						"EXT_color_buffer_half_float", "EXT_disjoint_timer_query", "EXT_disjoint_timer_query_webgl2",
+						"EXT_frag_depth", "EXT_sRGB", "EXT_shader_texture_lod", "EXT_texture_filter_anisotropic",
+						"OES_element_index_uint", "OES_standard_derivatives", "OES_texture_float",
+						"OES_texture_float_linear", "OES_texture_half_float", "OES_texture_half_float_linear",
+						"OES_vertex_array_object", "WEBGL_color_buffer_float", "WEBGL_compressed_texture_atc",
+						"WEBGL_compressed_texture_etc1", "WEBGL_compressed_texture_pvrtc", "WEBGL_compressed_texture_s3tc",
+						"WEBGL_compressed_texture_s3tc_srgb", "WEBGL_depth_texture", "WEBGL_draw_buffers"
+					],
+					it = function() {
+						function e(e) {
+							var a = e.constructor.name;
+							if (!t[a]) {
+								for (var i in e)
+									if ("number" == typeof e[i]) {
+										var n = r[e[i]];
+										r[e[i]] = n ? "".concat(n, " | ").concat(i) : i
+									} t[a] = !0
+							}
+						}
+						var t = {},
+							r = {};
+						return function(t, a) {
+							return e(t), r[a] || "0x" + a.toString(16)
+						}
+					}(),
+					nt = /^(.*?)_/,
+					ot = /coord|texture/i,
+					lt = /color|colour/i,
+					st = /position/i,
+					ut = 6401,
+					dt = 36168,
+					bt = 34041,
+					mt = 36096,
+					yt = 36128,
+					xt = 33189,
+					ct = (oe = {}, xe(oe, bt, 33306), xe(oe, ut, yt), xe(oe, dt, yt), xe(oe, 6402, mt), xe(oe, xt, mt), oe),
+					ft = (le = {}, xe(le, 32854, !0), xe(le, 32855, !0), xe(le, 36194, !0), xe(le, bt, !0), xe(le, xt, !0),
+						xe(le, ut, !0), xe(le, dt, !0), le),
+					pt = document.getElementById("canvas"),
+					vt = function(e, t) {
+						for (var r, a = ["webgl", "experimental-webgl"], i = null, n = 0, o = a; n < o.length; n++)
+							if (r = o[n], i = e.getContext(r, t), i) {
+								et.addExtensionsToContext && z(i);
+								break
+							} return i
+					}(pt, !0),
+					y = function(e) {
+						for (var t = arguments.length, r = Array(1 < t ? t - 1 : 0), a = 1; a < t; a++) r[a - 1] = arguments[
+							a];
+						Array.isArray(r[0]) && (r = r[0]);
+						var i = 0 < r[0].indexOf("{") ? A(e, r) : R(e, r),
+							n = D(e, i),
+							o = M(e, i);
+						return {
+							program: i,
+							uniformSetters: n,
+							attribSetters: o
+						}
+					}(vt,
+						"#define GLSLIFY 1\nattribute vec4 aPosition;\nattribute vec4 aNormal;\nattribute vec2 aTexcoord;\nuniform mat4 modelMatrix;\nuniform mat4 vpMatrix;\nvarying vec3 fragPos;\nvarying vec3 fragNor;\nvarying vec2 texcoord;\n\nvoid main() {\n  gl_Position = vpMatrix * modelMatrix * aPosition;\n  fragPos= vec3(modelMatrix * aPosition);\n  fragNor = vec3(modelMatrix * aNormal);\n  texcoord = aTexcoord;\n}",
+						"precision mediump float;\n#define GLSLIFY 1\nuniform vec3 viewPos;\nuniform vec3 lightPos;\nuniform vec3 lightColor;\nuniform vec3 ambientColor;\nuniform sampler2D diffMap;\nvarying vec3 fragPos;\nvarying vec3 fragNor;\nvarying vec2 texcoord;\nconst float shininess = 50.0;\n\nvoid main() {\n\tvec3 normal = normalize(fragNor);\n\tvec3 color = texture2D(diffMap, texcoord).rgb;\n\t// vec3 color = vec3(1.0,0.0,0.0);\n\t// \u73AF\u5883\u5149\n\tvec3 ambient = ambientColor * color;\n\t// \u5149\u7EBF\u65B9\u5411\n\tvec3 lightDir = normalize(lightPos - fragPos);\n\t// \u5149\u7EBF\u65B9\u5411\u548C\u6CD5\u5411\u91CF\u5939\u89D2\n\tfloat cosTheta = max(dot(lightDir, normal), 0.0);\n\t// \u6F2B\u53CD\u5C04\n\tvec3 diffuse = lightColor * color * cosTheta;\n\t// \u9AD8\u5149\n\tvec3 viewDirection = normalize(viewPos - fragPos);\n\tvec3 halfwayDir = normalize(lightDir + viewDirection);\n\tfloat specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), shininess);\n\tvec3 specular = lightColor * specularIntensity;\n\n\tgl_FragColor = vec4(ambient + diffuse + specular, 1.0);\n}"
+						),
+					k = function(e, t, r) {
+						var a = e.createVertexArray();
+						return e.bindVertexArray(a), t.length || (t = [t]), t.forEach(function(t) {
+							B(e, r, t)
+						}), e.bindVertexArray(null), {
+							count: r.count,
+							indexType: r.indexType,
+							vertexArrayObject: a
+						}
+					}(vt, y, function(e, t) {
+						var r = {
+								attribs: I(e, t)
+							},
+							a = t.indices;
+						if (a) {
+							var i = V(a, Uint16Array);
+							r.indices = O(e, i, 34963), r.count = a.count || i.length, r.indexType = a.type || 5123
+						} else r.count = G(t);
+						return r
+					}(vt, function() {
+						for (var e, t, a, o = 0 < arguments.length && arguments[0] !== void 0 ? arguments[0] : 1, s =
+								1 < arguments.length && arguments[1] !== void 0 ? arguments[1] : 3, n = [], u = [],
+								d = [], b = [], m = 2 * Z / s, f = s + 1, l = 0; l <= s; l++) {
+							var p = Z / s * l - Z / 2,
+								v = o * Q(p);
+							t = o * K(p);
+							for (var r = 0; r <= s; r++)
+								if (0 == l ? (e = 0, t = -o, a = 0) : l == s ? (e = 0, t = o, a = 0) : (e = v * K(m *
+										r), a = v * Q(m * r)), n.push(e, t, a), d.push(r / s, l / s), u.push.apply(u,
+										ye(F([e, t, a]))), l != s && r != s) {
+									var g = l * f + r;
+									b.push(g, g + 1, g + f + 1, g, g + f + 1, g + f)
+								}
+						}
+						return {
+							position: n,
+							normal: u,
+							texcoord: d,
+							indices: b
+						}
+					}(8, 20))),
+					gt = function(e, t, r, a, i) {
+						var n = Math.tan;
+						i = i || new de(16);
+						var o = n(.5 * Z - .5 * e),
+							l = 1 / (r - a);
+						return i[0] = o / t, i[1] = 0, i[2] = 0, i[3] = 0, i[4] = 0, i[5] = o, i[6] = 0, i[7] = 0, i[8] = 0,
+							i[9] = 0, i[10] = (r + a) * l, i[11] = -1, i[12] = 0, i[13] = 0, i[14] = 2 * (r * a * l), i[15] =
+							0, i
+					}(Z / 4, pt.width / pt.height, 1, 100),
+					Ft = s(),
+					Et = function(t) {
+						function a(r) {
+							var e = Math.acos,
+								a = p(t, r.clientX, r.clientY),
+								n = 2 * ((P.y > E.y ? P.x - a.x : a.x - P.x) / g * Z),
+								s = (P.y - a.y) / F * Z,
+								u = _[1],
+								d = e(i(o(_), o([0, u, 0]))),
+								b = m(n);
+							d + s < Z / 90 && 0 < u && 0 > s && (s = Z / 180 - d), d - s < Z / 90 && 0 > u && 0 < s && (s =
+								d - Z / 180);
+							var y = f(m(-Z / 2), [_[0], 0, _[2]]),
+								v = x(b, y, -s);
+							T = l(c(v, _))
+						}
+
+						function s() {
+							_ = l(T), t.removeEventListener("mouseup", s, !1), t.removeEventListener("mousemove", a, !1), t
+								.removeEventListener("mouseout", s, !1)
+						}
+						var u = 1 < arguments.length && void 0 !== arguments[1] ? arguments[1] : [0, 5, 5],
+							d = 2 < arguments.length && void 0 !== arguments[2] ? arguments[2] : 1,
+							b = 3 < arguments.length && void 0 !== arguments[3] ? arguments[3] : 50;
+						if (!t) throw new Error("canvas not exist");
+						var y, g = t.clientWidth,
+							F = t.clientHeight,
+							E = {
+								x: g / 2,
+								y: F / 2
+							},
+							P = E,
+							h = 1,
+							T = u,
+							_ = u;
+						return v(t, function(t) {
+								var e = n(_);
+								e < d + 1 && 0 > t.delta || e > b - 1 && 0 < t.delta || (h += .05 * t.delta, T = r(_, h),
+									clearTimeout(y), y = setTimeout(function() {
+										h = 1, _ = l(T)
+									}, 20))
+							}), t.addEventListener("mousedown", function(r) {
+								P = p(t, r.clientX, r.clientY), t.addEventListener("mousemove", a, !1), t
+									.addEventListener("mouseup", s, !1), t.addEventListener("mouseout", s, !1)
+							}, !1),
+							function() {
+								return T
+							}
+					}(pt, [20, 10, 24], 3, 80),
+					Pt = {
+						modelMatrix: s(),
+						lightPos: [20, 0, -20],
+						lightColor: [1, 1, 1],
+						ambientColor: [.5, .5, .5]
+					};
+				vt.clearColor(.5, .5, .5, 1), vt.enable(vt.DEPTH_TEST), vt.enable(vt.CULL_FACE), vt.viewport(0, 0, pt.width,
+						pt.height), vt.useProgram(y.program),
+					function(e, t, r) {
+						var a = t.target || 3553,
+							i = t.internalFormat || t.format || 6408,
+							n = j(i),
+							o = t.format || n.format || 6408,
+							l = t.type || n.type,
+							s = t.min || t.minMag || 9729,
+							u = t.mag || t.minMag || 9729,
+							d = t.wrapS || t.wrap || 10497,
+							b = t.wrapT || t.wrap || 10497,
+							m = t.width || 1,
+							y = t.height || 1,
+							x = t.src || null,
+							c = e.createTexture();
+						if (e.bindTexture(a, c), !t.flipY || e.pixelStorei(37440, 1), e.texParameteri(a, 10241, s), e
+							.texParameteri(a, 10240, u), 34067 === a && (d = b = 33071), e.texParameteri(a, 10242, d), e
+							.texParameteri(a, 10243, b), "string" == typeof x) {
+							if (3553 != a) throw new Error("the target must be gl.TEXTURE_2D");
+							Y(e, x, c, a, function() {
+								e.generateMipmap(a), e.bindTexture(a, null), r && r(c)
+							})
+						} else if (Array.isArray(x) && 6 === x.length && "string" == typeof x[0]) {
+							if (34067 != a) throw new Error("the target must be gl.TEXTURE_CUBE_MAP");
+							var f = x.length;
+							x.forEach(function(t, n) {
+								Y(e, t, c, a, function() {
+									f--, 0 >= f && (e.generateMipmap(a), e.bindTexture(a, null), r && r(c))
+								}, 34069 + n)
+							})
+						} else e.texImage2D(a, 0, i, m, y, 0, o, l, H(x));
+						return e.bindTexture(a, null), c
+					}(vt, {
+						src: "earth.jpg",
+						flipY: !0
+					}, function(e) {
+						document.getElementById("loading").innerHTML =
+							"\u62D6\u52A8\u9F20\u6807\u53EF\u65CB\u8F6C\u548C\u7F29\u653E\u753B\u9762", Pt.diffMap = e,
+							L(y, Pt), J()
+					})
+			})();
+		</script>
+	</body>
+</html>
